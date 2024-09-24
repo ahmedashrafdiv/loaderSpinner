@@ -1,23 +1,41 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+} from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header/Header";
-import Movies from "./pages/Movies/Movies";
-import MoviesDetails from "./pages/Movies/MoviesDetails";
-import Login from "./pages/Login/Login";
+import Movies, { loader as loaderMovies } from "./pages/Movies/Movies";
+import MoviesDetails, {loader as loaderMoviesDetails} from "./pages/Movies/MoviesDetails";
 import Home from "./pages/Home/Home";
+import { Provider } from "react-redux";
+import store from "./Store/store";
+
+const Layout = () => (
+  <>
+    <Header />
+    <Outlet />
+  </>
+);
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "home", element: <Home /> },
+      { path: "movies", element: <Movies />, loader:loaderMovies },
+      { path: "moviesDetails/:id", element: <MoviesDetails />, loader:loaderMoviesDetails },
+    ],
+  },
+]);
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/moviesDetails/:id" element={<MoviesDetails />} />
-        </Routes>
-      </BrowserRouter>
+      <Provider store={store}>
+      <RouterProvider router={router}></RouterProvider>
+      </Provider>
     </>
   );
 }

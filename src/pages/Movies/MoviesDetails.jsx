@@ -1,35 +1,44 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
+import axiosConfig from "../../AxiosConfig/axiosConfig";
+import Loader from "../../components/Loader/Loader";
+import { useSelector } from "react-redux";
 
 export default function MoviesDetails() {
-  const { id } = useParams();
-
-  const [movie, setMovies] = useState({});
-
-  useEffect(() => {
-    axios
-      .get(`https://api.sampleapis.com/movies/drama/${id}`)
-      .then((res) => {
-        setMovies(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
-
+  const movieDetails = useLoaderData();
+  const loader = useSelector((state) => state.loader.loader);
   return (
-    <div>
-      <div className="card" style={{ width: "500px" }}>
-        <img src={movie.posterURL} className="card-img-top" alt="..." />
-        <div className="card-body">
-          <h5 className="card-title">{movie.title}</h5>
-          <p className="card-text">
-            This is a longer card with supporting text below as a natural
-            lead-in to additional content. This content is a little bit longer.
-          </p>
+    <>
+      {loader ? (
+        <Loader />
+      ) : (
+        <div>
+          <div className="card" style={{ width: "500px" }}>
+            <img
+              src={movieDetails.posterURL}
+              className="card-img-top"
+              alt="..."
+            />
+            <div className="card-body">
+              <h5 className="card-title">{movieDetails.title}</h5>
+              <p className="card-text">
+                This is a longer card with supporting text below as a natural
+                lead-in to additional content. This content is a little bit
+                longer.
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
+
+export const loader = async ({ params }) => {
+  try {
+    const res = await axiosConfig.get(`/movies/drama/${params.id}`);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
